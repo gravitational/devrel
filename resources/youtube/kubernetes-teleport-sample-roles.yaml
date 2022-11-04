@@ -1,0 +1,42 @@
+# Below content referenced in https://youtu.be/ptpkSaLVh00. This YouTube video takes a look at how to manage Kubernetes access with Teleport. 
+
+# dev-read-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: dev-read
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - pods/log
+  verbs:
+  - get
+  - list
+  - watch
+
+# dev-read-role-binding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: dev-read-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: dev-read
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: developer-read
+
+# developer-read-teleport.yaml
+kind: role
+version: v4
+metadata:
+  name: developer-read
+spec:
+  allow:
+    kubernetes_groups: ["developer-read"]
+    kubernetes_labels:
+       '*': '*'
